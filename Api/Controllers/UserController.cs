@@ -2,8 +2,10 @@
 using AcademyApi.Data.Entities;
 using Api.Resources.User;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,37 +25,75 @@ namespace Api.Controllers
             _mapper = mapper;
         }
 
-        //[Route("users")]
         [HttpGet]
-        public IEnumerable<User> Get()
+        public IActionResult Get()
         {
-            return _db.Users;
+            var users = _db.Users.ToList();
+
+            var userResource = _mapper.Map<IEnumerable<UserResource>>(users);
+
+            return Ok(userResource);
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<User> Get(int? id)
+        {
+            if (id == null) return NotFound();
+
+            User user = _db.Users.FirstOrDefault(x => x.Id == id);
+
+            if (user == null) return NotFound(new { message = "User not found" });
+
+            var userResource = _mapper.Map<UserResource>(user);
+
+            return Ok(userResource);
         }
 
         [Route("login")]
         [HttpPost]
-        public IActionResult Login()
+        public async Task<IActionResult> Login([FromBody] LoginResource login)
         {
-            return Ok("user/login");
+            var user = _db.Users.FirstOrDefault(d => d.Email == login.Email);
+            
+            if (user != null)
+            {
+                if (CryptoHelper.Crypto.VerifyHashedPassword(user.Password, login.Password))
+                {
+                    user.Token = CryptoHelper.Crypto.HashPassword(DateTime.Now.ToString());
+
+                    await _db.SaveChangesAsync();
+
+                    var userResource = _mapper.Map<User, UserResource>(user);
+
+                    return Ok(userResource);
+                }
+            }
+
+            return NotFound(new
+            {
+                message="Email or password incorrect"
+            });
         }
 
         [Route("register")]
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterResource register)
         {
-            var user = new User
-            {
-                Name = register.Name,
-                Surname = register.Surname,
-                Email = register.Email,
-                Password = CryptoHelper.Crypto.HashPassword(register.Password),
-                Token = CryptoHelper.Crypto.HashPassword(DateTime.Now.ToString()),
-                AddedDate=DateTime.Now,
-                AddedBy = "System"
-            };
+            if (_db.Users.Any(d => d.Email == register.Email)) return Conflict( new 
+            { 
+                message="This Email alredy exists"
+            });
+
+            var user = _mapper.Map<RegisterResource, User>(register);
+
+            var dbUser = _db.Users.ToList();
+
             await _db.Users.AddAsync(user);
+
             await _db.SaveChangesAsync();
+
             var userResource = _mapper.Map<User, UserResource>(user);
+
             return Ok(userResource);
         }
     }

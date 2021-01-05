@@ -2,9 +2,6 @@
 using Api.Resources.User;
 using AutoMapper;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Api.Mapping
 {
@@ -12,6 +9,14 @@ namespace Api.Mapping
     {
         public MappingProfile()
         {
+            CreateMap<RegisterResource, User>()
+                .ForMember(d => d.Status, opt => opt.MapFrom(src => true))
+                .ForMember(d => d.AddedDate, opt => opt.MapFrom(src => DateTime.Now))
+                .ForMember(d => d.AddedBy, opt => opt.MapFrom(src => "System"))
+                .ForMember(d => d.AddedDate, opt => opt.MapFrom(src => DateTime.Now))
+                .ForMember(d => d.Password, opt => opt.MapFrom(src => CryptoHelper.Crypto.HashPassword(src.Password)))
+                .ForMember(d => d.Token, opt => opt.MapFrom(src => CryptoHelper.Crypto.HashPassword(DateTime.Now.ToString())));
+
             CreateMap<User, UserResource>()
                 .ForMember(d => d.RegisterDate, opt => opt
                 .MapFrom(src => src.AddedDate
