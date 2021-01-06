@@ -1,12 +1,12 @@
-﻿using AcademyApi.Data.Entities;
+﻿using Api.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AcademyApi.Data.Configurations
 {
-    public class CategoryConfiguration : IEntityTypeConfiguration<Category>
+    public class ProductConfiguration : IEntityTypeConfiguration<Product>
     {
-        public void Configure(EntityTypeBuilder<Category> builder)
+        public void Configure(EntityTypeBuilder<Product> builder)
         {
             builder.HasKey(m => m.Id);
 
@@ -16,7 +16,11 @@ namespace AcademyApi.Data.Configurations
             builder.Property(m => m.Name)
                 .HasMaxLength(50).IsRequired();
 
-            builder.ToTable("Categories");
+            builder.HasOne(m => m.Category)
+                .WithMany(m => m.Products)
+                .HasForeignKey(m => m.CategoryId);
+
+            builder.ToTable("Products");
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using AcademyApi.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
 
 namespace AcademyApi.Data.Configurations
 {
