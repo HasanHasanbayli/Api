@@ -83,8 +83,6 @@ namespace Api.Controllers
 
             var user = _mapper.Map<RegisterResource, User>(register);
 
-            var dbUser = _db.Users.ToList();
-
             await _db.Users.AddAsync(user);
 
             await _db.SaveChangesAsync();

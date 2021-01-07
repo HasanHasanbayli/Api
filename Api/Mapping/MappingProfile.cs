@@ -17,7 +17,6 @@ namespace Api.Mapping
                 .ForMember(d => d.Status, opt => opt.MapFrom(src => true))
                 .ForMember(d => d.AddedDate, opt => opt.MapFrom(src => DateTime.Now))
                 .ForMember(d => d.AddedBy, opt => opt.MapFrom(src => "System"))
-                .ForMember(d => d.AddedDate, opt => opt.MapFrom(src => DateTime.Now))
                 .ForMember(d => d.Password, opt => opt.MapFrom(src => CryptoHelper.Crypto.HashPassword(src.Password)))
                 .ForMember(d => d.Token, opt => opt.MapFrom(src => CryptoHelper.Crypto.HashPassword(DateTime.Now.ToString())));
 
@@ -26,12 +25,25 @@ namespace Api.Mapping
                 .MapFrom(src => src.AddedDate
                 .ToString("dd.MM.yyyy")));
 
+            CreateMap<Product, ProductResource>()
+                .ForMember(d => d.Categories, opt=>opt
+                .MapFrom(src=>src.ProductCategories
+                .Select(d=>d.Category.Name)));
+
+            CreateMap<CreateCategoryResource, Category>()
+                .ForMember(d=>d.Name, opt=>opt.MapFrom(src=> src.Name))
+                .ForMember(d => d.AddedDate, opt => opt.MapFrom(src => DateTime.Now));
+
+
             CreateMap<Category, CategoryResource>()
                 .ForMember(d => d.Products, opt => opt
-                .MapFrom(src => src.Products
-                .Select(x => x.Name)));
+                .MapFrom(src => src.ProductCategories
+                .Select(x => x.Product.Name)))
 
-            CreateMap<Product, ProductResource>();
+                .ForMember(d => d.AddedDate, opt => opt
+                .MapFrom(src => src.AddedDate
+                .ToString("dd.MM.yyyy")));
+             
         }
     }
 }

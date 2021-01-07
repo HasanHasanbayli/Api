@@ -23,7 +23,7 @@ namespace Api.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var products = _db.Products.ToList();
+            var products = _db.Products.Include(x => x.ProductCategories).ThenInclude(x => x.Category);
 
             var productResource = _mapper.Map<IEnumerable<ProductResource>>(products);
 

@@ -16,9 +16,9 @@ namespace AcademyApi.Data.Configurations
             builder.Property(m => m.Name)
                 .HasMaxLength(50).IsRequired();
 
-            builder.HasOne(m => m.Category)
+            builder.HasOne(m => m.User)
                 .WithMany(m => m.Products)
-                .HasForeignKey(m => m.CategoryId);
+                .HasForeignKey(m => m.UserId);
 
             builder.ToTable("Products");
         }

@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20210106141111_AddTableToDatabase")]
-    partial class AddTableToDatabase
+    [Migration("20210107192444_AddDatabseTable")]
+    partial class AddDatabseTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -48,7 +48,12 @@ namespace Api.Migrations
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Categories");
                 });
@@ -120,9 +125,6 @@ namespace Api.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -140,27 +142,105 @@ namespace Api.Migrations
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("Api.Data.Entities.Product", b =>
+            modelBuilder.Entity("Api.Data.Entities.ProductCategory", b =>
                 {
-                    b.HasOne("AcademyApi.Data.Entities.Category", "Category")
-                        .WithMany("Products")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
 
-                    b.Navigation("Category");
+                    b.Property<string>("AddedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("AddedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductCategories");
                 });
 
             modelBuilder.Entity("AcademyApi.Data.Entities.Category", b =>
                 {
+                    b.HasOne("AcademyApi.Data.Entities.User", null)
+                        .WithMany("Categories")
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("Api.Data.Entities.Product", b =>
+                {
+                    b.HasOne("AcademyApi.Data.Entities.User", "User")
+                        .WithMany("Products")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Api.Data.Entities.ProductCategory", b =>
+                {
+                    b.HasOne("AcademyApi.Data.Entities.Category", "Category")
+                        .WithMany("ProductCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Api.Data.Entities.Product", "Product")
+                        .WithMany("ProductCategories")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("AcademyApi.Data.Entities.Category", b =>
+                {
+                    b.Navigation("ProductCategories");
+                });
+
+            modelBuilder.Entity("AcademyApi.Data.Entities.User", b =>
+                {
+                    b.Navigation("Categories");
+
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("Api.Data.Entities.Product", b =>
+                {
+                    b.Navigation("ProductCategories");
                 });
 #pragma warning restore 612, 618
         }

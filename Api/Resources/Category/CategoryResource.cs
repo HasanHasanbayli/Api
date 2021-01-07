@@ -1,5 +1,4 @@
-﻿using Api.Data.Entities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Api.Resources.Category
 {
@@ -7,6 +6,7 @@ namespace Api.Resources.Category
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string AddedDate { get; set; }
         public ICollection<string> Products { get; set; }
     }
 }
