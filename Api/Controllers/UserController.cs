@@ -91,5 +91,35 @@ namespace Api.Controllers
 
             return Ok(userResource);
         }
+
+
+        [Route("{id}")]
+        [HttpPut]
+        public async Task<IActionResult> Update(int? id, [FromBody] UpdateProfileResource updateProfile)
+        {
+            if (id == null) return NotFound(new { message = "User not found" });
+          
+            var dbUser = _db.Users.FirstOrDefault(x => x.Id == id);
+
+            if (updateProfile.Email!=dbUser.Email)
+            {
+                if (_db.Users.Any(x => x.Email == updateProfile.Email)) return Conflict(new
+                {
+                    message = "This Email alredy exists"
+                });
+            }
+
+            dbUser.Email = updateProfile.Email;
+
+            dbUser.Name = updateProfile.Name;
+
+            dbUser.Surname = updateProfile.Surname;
+
+            var userResource = _mapper.Map<User, UserResource>(dbUser);
+
+            await _db.SaveChangesAsync();
+
+            return Ok(userResource);
+        }
     }
 }
