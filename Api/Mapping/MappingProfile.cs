@@ -25,15 +25,13 @@ namespace Api.Mapping
                 .ForMember(d => d.Token, opt => opt
                 .MapFrom(src => CryptoHelper.Crypto.HashPassword(DateTime.Now.ToString())));
 
-            CreateMap<UpdateProfileResource, User>()
-                .ForMember(d => d.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(d => d.Surname, opt => opt.MapFrom(src => src.Surname))
-                .ForMember(d => d.Email, opt => opt.MapFrom(src => src.Email));
-
             CreateMap<User, UserResource>()
                 .ForMember(d => d.RegisterDate, opt => opt
                 .MapFrom(src => src.AddedDate
-                .ToString("dd.MMMM.yyyy")));
+                .ToString("dd.MMMM.yyyy")))
+                .ForMember(d => d.UpdateDate, opt => opt
+                .MapFrom(src => src.ModifiedDate));
+           
 
             CreateMap<Product, ProductResource>()
                 .ForMember(d => d.Categories, opt=>opt

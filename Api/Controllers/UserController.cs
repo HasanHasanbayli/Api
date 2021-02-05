@@ -115,11 +115,46 @@ namespace Api.Controllers
 
             dbUser.Surname = updateProfile.Surname;
 
+            dbUser.ModifiedDate = DateTime.Now;
+
             var userResource = _mapper.Map<User, UserResource>(dbUser);
 
             await _db.SaveChangesAsync();
 
             return Ok(userResource);
+        }
+
+        [Route("{changepassword}/{id}")]
+        [HttpPut]
+        public async Task<IActionResult> ChangePassword(int? id, [FromBody] ChangePasswordResource changePassword)
+        {
+            if (id == null) return NotFound(new { message = "User not found" });
+            
+            var dbUser = _db.Users.FirstOrDefault(d=>d.Email==changePassword.Email);
+
+            if (dbUser!=null)
+            {
+                if (CryptoHelper.Crypto.VerifyHashedPassword(dbUser.Password, changePassword.OldPassword))
+                {
+                    dbUser.Password = CryptoHelper.Crypto.HashPassword(changePassword.NewPassword);
+
+                    await _db.SaveChangesAsync();
+
+                    var userResource = _mapper.Map<User, UserResource>(dbUser);
+
+                    return Ok(userResource);
+                }
+
+                return NotFound(new
+                {
+                    message = "Email or password incorrect"
+                });
+            }
+
+            return NotFound(new
+            {
+                message = "User not found"
+            });
         }
     }
 }
